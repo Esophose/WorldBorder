@@ -1,0 +1,49 @@
+import org.apache.tools.ant.filters.ReplaceTokens
+
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '5.1.0'
+}
+
+group = 'com.wimbli.WorldBorder'
+version = '2.0.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+compileJava {
+    options.compilerArgs += ['-parameters']
+    options.fork = true
+    options.forkOptions.executable = 'javac'
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+
+    maven { url = 'https://repo.rosewooddev.io/repository/public/' }
+    maven { url = 'https://repo.mikeprimm.com/' }
+    maven { url = 'https://papermc.io/repo/repository/maven-public/' }
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot:1.16.3'
+    compileOnly 'us.dynmap:dynmap-api:3.0.1'
+
+    implementation 'io.papermc:paperlib:1.0.2'
+}
+
+shadowJar {
+    archiveClassifier.set(null)
+
+    relocate('io.papermc.lib', 'com.wimbli.WorldBorder.paperlib')
+}
+
+processResources {
+    from (sourceSets.main.resources.srcDirs) {
+        include '**/*.yml'
+        filter ReplaceTokens, tokens: ["version": project.property("version")]
+    }
+}
+
+build.dependsOn shadowJar
